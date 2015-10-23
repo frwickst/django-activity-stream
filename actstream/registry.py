@@ -25,26 +25,7 @@ def setup_generic_relations(model_class):
         raise RegistrationError('Unable get actstream.Action. Potential circular imports '
                                 'in initialisation. Try moving actstream app to come after the '
                                 'apps which have models to register in the INSTALLED_APPS setting.')
-
-    related_attr_name = 'related_name'
-    related_attr_value = 'actions_with_%s' % label(model_class)
-    if django.VERSION[:2] >= (1, 7):
-        related_attr_name = 'related_query_name'
     relations = {}
-    for field in ('actor', 'target', 'action_object'):
-        attr = '%s_actions' % field
-        attr_value = '%s_as_%s' % (related_attr_value, field)
-        kwargs = {
-            'content_type_field': '%s_content_type' % field,
-            'object_id_field': '%s_object_id' % field,
-            related_attr_name: attr_value
-        }
-        rel = generic.GenericRelation('actstream.Action', **kwargs)
-        rel.contribute_to_class(model_class, attr)
-        relations[field] = rel
-
-        # @@@ I'm not entirely sure why this works
-        setattr(Action, attr_value, None)
     return relations
 
 
